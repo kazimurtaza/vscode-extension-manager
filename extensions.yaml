@@ -1,0 +1,51 @@
+extensions:
+  - id: Anthropic.claude-code
+    version: latest
+  - id: amazonwebservices.aws-toolkit-vscode
+    version: latest
+  - id: bierner.markdown-emoji
+    version: latest
+  - id: bierner.markdown-mermaid
+    version: latest
+  - id: bradlc.vscode-tailwindcss
+    version: latest
+  - id: christian-kohler.path-intellisense
+    version: latest
+  - id: davidanson.vscode-markdownlint
+    version: latest
+  - id: dbaeumer.vscode-eslint
+    version: latest
+  - id: eamodio.gitlens
+    version: latest
+  - id: esbenp.prettier-vscode
+    version: latest
+  - id: formulahendry.auto-rename-tag
+    version: latest
+  - id: mechatroner.rainbow-csv
+    version: latest
+  - id: ms-python.debugpy
+    version: latest
+  - id: ms-python.python
+    version: latest
+  - id: ms-python.vscode-pylance
+    version: latest
+  - id: ms-vscode-remote.remote-containers
+    version: latest
+  - id: ms-vscode.vscode-typescript-next
+    version: latest
+  - id: redhat.vscode-xml
+    version: latest
+  - id: redhat.vscode-yaml
+    version: latest
+  - id: shd101wyy.markdown-preview-enhanced
+    version: latest
+  - id: streetsidesoftware.code-spell-checker
+    version: latest
+  - id: vscode-icons-team.vscode-icons
+    version: latest
+  - id: wayou.vscode-todo-highlight
+    version: latest
+  - id: yzhang.markdown-all-in-one
+    version: latest
+  - id: ms-vscode.vscode-json
+    version: latest
