@@ -12,12 +12,36 @@ YAML_FILES_PATTERN="*.yaml" # Pattern to find your YAML files (e.g., extensions.
 
 # --- Functions ---
 
-# Function to parse extension details from Open VSX URL
+# Function to parse extension details from marketplace URLs
 parse_extension_url() {
     local url="$1"
-    # Extract publisher, name, and version from URL
+    
+    # Handle Windsurf marketplace URLs
+    # Format: https://marketplace.windsurf.com/api/publisher/name/version/file/publisher.name-version.vsix
+    if [[ "$url" =~ https://marketplace\.windsurf\.com/api/([^/]+)/([^/]+)/([^/]+)/file/([^/]+) ]]; then
+        local publisher="${BASH_REMATCH[1]}"
+        local name="${BASH_REMATCH[2]}"
+        local version="${BASH_REMATCH[3]}"
+        local ext_id="${publisher}.${name}"
+        
+        echo "$ext_id $version $url"
+        return 0
+    
+    # Handle Open VSX URLs with platform-specific extensions
+    # Format: https://open-vsx.org/api/publisher/name/platform/version/file/publisher.name-version@platform.vsix
+    elif [[ "$url" =~ https://open-vsx\.org/api/([^/]+)/([^/]+)/([^/]+)/([^/]+)/file/([^/]+) ]]; then
+        local publisher="${BASH_REMATCH[1]}"
+        local name="${BASH_REMATCH[2]}"
+        local platform="${BASH_REMATCH[3]}"
+        local version="${BASH_REMATCH[4]}"
+        local ext_id="${publisher}.${name}"
+        
+        echo "$ext_id $version $url"
+        return 0
+    
+    # Handle standard Open VSX URLs
     # Format: https://open-vsx.org/api/publisher/name/version/file/publisher.name-version.vsix
-    if [[ "$url" =~ https://open-vsx\.org/api/([^/]+)/([^/]+)/([^/]+)/file/([^/]+) ]]; then
+    elif [[ "$url" =~ https://open-vsx\.org/api/([^/]+)/([^/]+)/([^/]+)/file/([^/]+) ]]; then
         local publisher="${BASH_REMATCH[1]}"
         local name="${BASH_REMATCH[2]}"
         local version="${BASH_REMATCH[3]}"
@@ -26,8 +50,11 @@ parse_extension_url() {
         echo "$ext_id $version $url"
         return 0
     else
-        echo "Error: Invalid Open VSX URL format" >&2
-        echo "Expected format: https://open-vsx.org/api/publisher/name/version/file/publisher.name-version.vsix" >&2
+        echo "Error: Invalid marketplace URL format" >&2
+        echo "Supported formats:" >&2
+        echo "  - https://open-vsx.org/api/publisher/name/version/file/publisher.name-version.vsix" >&2
+        echo "  - https://open-vsx.org/api/publisher/name/platform/version/file/publisher.name-version@platform.vsix" >&2
+        echo "  - https://marketplace.windsurf.com/api/publisher/name/version/file/publisher.name-version.vsix" >&2
         return 1
     fi
 }
@@ -115,12 +142,12 @@ download_vsix() {
     local download_url="https://openvsxorg.blob.core.windows.net/resources/${publisher}/${name}/${version}/${vsix_filename}"
     local output_path="${TEMP_DIR}/${vsix_filename}"
 
-    echo "Attempting to download ${ext_id}@${version} from ${download_url}"
+    echo "Attempting to download ${ext_id}@${version} from ${download_url}" >&2
     # Use -L to follow redirects, -f to fail silently on HTTP errors, -o for output file
     curl -L -f -o "$output_path" "$download_url"
 
     if [ $? -eq 0 ] && [ -s "$output_path" ] && file "$output_path" | grep -q "Zip archive data"; then
-        echo "Downloaded: $output_path"
+        echo "Downloaded: $output_path" >&2
         echo "$output_path"
     else
         echo "Failed to download ${ext_id}@${version}. The URL might be incorrect, the file is not directly served, or it's not a valid VSIX." >&2
@@ -176,6 +203,8 @@ if [ $# -eq 1 ]; then
         echo "Examples:"
         echo "  $0"
         echo "  $0 https://open-vsx.org/api/Anthropic/claude-code/1.0.29/file/Anthropic.claude-code-1.0.29.vsix"
+        echo "  $0 https://open-vsx.org/api/Continue/continue/linux-x64/1.1.66/file/Continue.continue-1.1.66@linux-x64.vsix"
+        echo "  $0 https://marketplace.windsurf.com/api/Anthropic/claude-code/1.0.29/file/Anthropic.claude-code-1.0.29.vsix"
         exit 0
     fi
     
